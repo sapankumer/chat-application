@@ -61,7 +61,8 @@ p.error {
 }
 
 /* input related styles */
-input {
+input,
+select {
   background: var(--tertiary);
   outline: none;
   padding: 15px;
@@ -71,7 +72,8 @@ input {
   font-size: 1.4rem;
 }
 
-input.error {
+input.error,
+select.error {
   border: 1px solid var(--red);
 }
 

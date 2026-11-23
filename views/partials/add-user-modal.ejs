@@ -1,0 +1,111 @@
+<div class="modal-wrapper" id="add-user-modal">
+  <div class="modal">
+    <a href="#" onclick="closeModal()" class="modal-close">+</a>
+    <div class="modal-title">
+      <h2>Create New User</h2>
+    </div>
+    <div class="modal-body">
+      <form method="post" action="/users" enctype="multipart/form-data" id="add-user-form">
+        <input type="text" placeholder="Enter name" name="name" />
+        <p class="error name-error"></p>
+
+        <input type="text" placeholder="Enter email" name="email" />
+        <p class="error email-error"></p>
+
+        <input type="text" placeholder="Enter mobile" name="mobile" />
+        <p class="error mobile-error"></p>
+
+        <input type="password" placeholder="Enter password" name="password" />
+        <p class="error password-error"></p>
+
+        <select name="role">
+          <option value="user" selected>User</option>
+          <option value="admin">Admin</option>
+        </select>
+        <p class="error role-error"></p>
+
+        <input type="file" name="avatar" />
+        <p class="error avatar-error"></p>
+
+        <p class="error common-error"></p>
+
+        <input type="submit" value="Submit" />
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modal = document.querySelector("#add-user-modal");
+  const form = document.querySelector("#add-user-form");
+
+  // success toast
+  const successToast = Toastify({
+    text: "User created successfully",
+    duration: 1000,
+  });
+
+  function closeModal() {
+    modal.style.display = "none";
+  }
+
+  function openModal() {
+    modal.style.display = "block";
+  }
+
+  // clear all error styles and messages
+  function resetErrors() {
+    form.querySelectorAll("p.error").forEach(p => (p.style.display = "none"));
+    form.querySelectorAll("input.error, select.error").forEach(el => el.classList.remove("error"));
+  }
+
+  // form submission handler
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    resetErrors();
+
+    try {
+      const response = await fetch("/users", {
+        method: "POST",
+        body: new FormData(form),
+      });
+
+      const data = await response.json();
+
+      // 1. Success case (Early return)
+      if (response.ok) {
+        successToast.showToast();
+        closeModal();
+        setTimeout(() => location.reload(), 1000);
+        return;
+      }
+
+      // 2. Validation errors (Optional chaining & destructuring)
+      if (data.errors) {
+        Object.entries(data.errors).forEach(([field, { msg }]) => {
+          form[field]?.classList.add("error");
+          const errorElement = document.querySelector(`.${field}-error`);
+          if (errorElement) {
+            errorElement.textContent = msg;
+            errorElement.style.display = "block";
+          }
+        });
+        return;
+      }
+
+      // 3. Fallback error message
+      const commonError = document.querySelector(".common-error");
+      if (commonError) {
+        commonError.textContent = data.message || "An unexpected error occurred.";
+        commonError.style.display = "block";
+      }
+    } catch (err) {
+      console.error(err);
+      const commonError = document.querySelector(".common-error");
+      if (commonError) {
+        commonError.textContent = "Network error. Please try again.";
+        commonError.style.display = "block";
+      }
+    }
+  };
+</script>

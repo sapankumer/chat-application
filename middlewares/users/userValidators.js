@@ -1,13 +1,14 @@
 //external imports
 const { check, validationResult } = require("express-validator");
-const {People} = require('../../models/People');
+const People = require('../../models/People');
 const createError = require('http-errors');
 const fs = require('fs');
+const path = require('path');
 
 
 //internal imports
 
-const userValidators = [
+const addUserValidators = [
     check('name')
         .isLength({min: 3})
         .withMessage('Name must be at least 3 characters long')
@@ -30,7 +31,7 @@ const userValidators = [
         }),
 
     check('mobile')
-        .isMobilePhone('en-BD',{strictMode: true})
+        .isMobilePhone('bn-BD')
         .withMessage('Invalid mobile number')
         .trim()
         .custom(async (value) => {
@@ -44,7 +45,13 @@ const userValidators = [
             }
         }),
     check('password')
-        .isStrongPassword({minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1})
+        .isStrongPassword({
+            minLength: 8,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1,
+        })
         .withMessage('Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
 ];
 
@@ -56,15 +63,19 @@ const userValidationHandler = (req, res, next) => {
     } else {
         //remove uploaded file
         if(req.files && req.files.length > 0){
-            const uploadedFile = req.files[0];
-            const filePath = uploadedFile.path;
+            const fileName = req.files[0].filename;
+            const filePath = path.join(__dirname, `../../public/uploads/avatars/${fileName}`);
             fs.promises.unlink(filePath).catch((err) => console.log(err));
         }
-        res.status(500).json({
+        //send error response
+        res.status(422).json({
             errors: mappedErrors,
         });
         
     }
 };
 
-module.exports = {userValidators, userValidationHandler};
+module.exports = {
+    addUserValidators, 
+    userValidationHandler
+};
