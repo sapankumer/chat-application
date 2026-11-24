@@ -1,10 +1,15 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/People");
 
-function getUsers(req, res, next){
-
-    res.render("users");
-
+async function getUsers(req, res, next){
+    try {
+        const users = await User.find();
+        res.render("users", {
+            users: users,
+        });
+    } catch (err) {
+        next(err);
+    }
 }
 
 const userCreate = async (req, res, next) => {

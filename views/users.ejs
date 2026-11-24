@@ -15,20 +15,33 @@
             <tr>
               <th>Name</th>
               <th>Email</th>
+              <th>Phone</th>
+              <th>Role</th>
               <th>Manage</th>
             </tr>
           </thead>
           <tbody id="users-table">
-            <tr id="">
-              <td class="name">
-                <img src="./images/user1.png" />
-                <span>User 1</span>
-              </td>
-              <td>email@email.com</td>
-              <td class="manage">
-                <img src="./images/trash.png" alt="Delete" />
-              </td>
-            </tr>
+
+            <% if (locals.users) { %>
+              <% users.forEach(function(user) { %>
+                <tr id="<%= user._id %>">
+                  <td class="name">
+                    <% if (user.avatar){ %>
+                      <img src="./uploads/avatars/<%= user.avatar%>" />
+                    <%} else { %>
+                       <img src="./images/nophoto.png" />
+                    <% } %>
+                    <span><%= user.name %></span>
+                  </td>
+                  <td><%= user.email %></td>
+                  <td><%= user.mobile %></td>
+                  <td><%= user.role %></td>
+                  <td class="manage">
+                    <img src="./images/trash.png" alt="Delete" />
+                  </td>
+                </tr> 
+              <% }); %>
+            <% } %>
           </tbody>
         </table>
       </div>
